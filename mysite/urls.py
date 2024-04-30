@@ -20,5 +20,5 @@ from file_allocation import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.filter_data, name='filter_data'),  # Define URL pattern for filter_data view
+    path('home/', views.home_simple, name='home')
 ]

@@ -4,11 +4,11 @@ import pandas as pd
 import psycopg2
 
 # Define your database connection parameters
-DB_NAME = 'your_db_name'
-DB_USER = 'your_db_user'
-DB_PASSWORD = 'your_db_password'
-DB_HOST = 'your_db_host'
-DB_PORT = 'your_db_port'
+DB_NAME = 'dev_voice'
+DB_USER = 'postgres'
+DB_PASSWORD = 'Password123*'
+DB_HOST = '192.168.1.189'
+DB_PORT = '5432'
 
 def fetch_campaign_names():
     # Connect to the database
@@ -38,6 +38,28 @@ def fetch_campaign_data(campaign_name):
     return df
 
 
+def home_simple(request):
+    if request.method == 'GET':
+        campaign_names = fetch_campaign_names()
+
+        # Prepare the response data
+        form_data1 = [
+            {'label': 'Campaign_Name', 'options': campaign_names, 'type': 'select', 'default': None, 'child': None, 'parent': 'Campaign_Name'},
+            {'label': 'Maxout', 'options': [], 'type': 'radio', 'default': False, 'child': 'maxout', 'parent': 'Maxout'},
+            {'label': 'maxout', 'options': [1, 2, 3, 4, 5], 'type': 'multiselect', 'default': False, 'child': None, 'parent': 'Maxout'}
+        ]
+        # print(form_data1)
+        return render(request, 'home-simple.html', {'form_data': form_data1})
+    
+    if request.method == 'POST':
+
+        campaign_name = request.POST.get('Campaign_Name-input')
+        maxout_toggle = request.POST.get('Maxout-input')
+        maxout_input = request.POST.get('maxout-input')
+
+        print(maxout_toggle)
+        return render(request, 'home-simple.html', {})
+
 def index(request):
     if request.method == 'GET':
         # Step 1: Fetch Campaign Names
@@ -45,11 +67,12 @@ def index(request):
 
         # Prepare the response data
         form_data1 = [
-            {'label': 'Campaign Name', 'options': campaign_names, 'type': 'select', 'default': None, 'parent': None},
-            {'label': 'Maxout', 'options': [], 'type': 'radio', 'default': False, 'parent': None},
-            {'label': 'maxout', 'options': [1, 2, 3, 4, 5], 'type': 'select', 'default': False, 'parent': 'Maxout'}
+            {'label': 'Campaign Name', 'options': campaign_names, 'type': 'select', 'default': None, 'child': None},
+            {'label': 'Maxout', 'options': [], 'type': 'radio', 'default': False, 'child': 'maxout'},
+            {'label': 'maxout', 'options': [1, 2, 3, 4, 5], 'type': 'select', 'default': False, 'child': None}
         ]
-        return render(request, 'home.html', form_data1)
+        print(form_data1)
+        return render(request, 'main.html', {'form_data': form_data1})
 
     elif request.method == 'POST':
         # Retrieve the selected Campaign Name from the request

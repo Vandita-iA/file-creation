@@ -1,0 +1,188 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css">
+    <!-- Handsontable JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/css/select2.min.css" integrity="sha512-UwAAYUQ/wlH2hvmvHjbPj+ZwMxvZ8kpxuH3j5f+y7EldVbr0MDyHxqLX76ByNfziwDSKO9hU+bqFXex8cqIRuQ==" crossorigin="anonymous" />
+
+    <!-- jQuery (necessary for Select2) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-aXnrmFQbE5mJVVxgr7rFdh0BxWdAl/Frlx7Y6eF8fgBx+eIFQT5iNmrt7rexDU0DMBRxCHpVg2XVwgiID18rNw==" crossorigin="anonymous"></script>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/js/select2.min.js" integrity="sha512-c4S8AxZv9rWngmwm9P7znolPK+BmE9ICf9BzVFAuzN8J0D0gZTwDwl8EwXK9R1sFPe9ePbTZAHoYLpUtkUzX6A==" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" type="text/css" href="{% static 'css/mobiscroll.javascript.min.css' %}">
+    <script src="{% static 'js/mobiscroll.javascript.min.js' %}"></script>
+    <script src="{% static 'js/test.js' %}"></script>
+
+    <title>File Allocation</title>
+</head>
+<body>
+    <div class="vh-100" style="display: flex; gap: 10px; justify-content: space-between; padding: 8px;">
+        <div class="w-50">
+
+            <form action='/home/' method="POST">
+                {% csrf_token %}
+                {% for data in form_data  %}
+                    
+                    {% if data.type == 'select' %}
+                        <div style="display: {% if data.parent != data.label %} none {% else %} flex {% endif %}" id='{{data.label}}-parent'>
+                            <div mbsc-page class="demo-multiple-select" style="background-color: white; width: 80%;">
+                                <label style="font-size: 20px;">
+                                    {{data.label}}
+                                    <input name='{{data.label}}-input' mbsc-input id="{{data.label}}-input" placeholder="Please select..." data-dropdown="true" data-input-style="outline" data-label-style="stacked" data-tags="true" />
+                                </label>
+                                <select name='{{data.label}}-options' id="{{data.label}}-options">
+                                    
+                                    {% for option in data.options %}
+                                        <option value="{{option}}">{{option}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    
+                    {% if data.type == 'radio' %}
+                        <div style="margin-left: 20px;">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" name='{{data.label}}-input' type="checkbox" id="{{data.label}}-input">
+                                <label class="form-check-label" for="{{data.label}}-input">{{data.label}}</label>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if data.type == 'multiselect' %}
+                        <div style="display: {% if data.parent != data.label %} none {% else %} flex {% endif %}" id='{{data.label}}-parent'>
+                            <div mbsc-page class="demo-multiple-select-2" style="background-color: white; width: 80%;">
+                                <label style="font-size: 20px;">
+                                    {{data.label}}
+                                    <input name='{{data.label}}-input' mbsc-input id="{{data.label}}-input" placeholder="Please select..." data-dropdown="true" data-input-style="outline" data-label-style="stacked" data-tags="true" />
+                                </label>
+                                <select name='{{data.label}}-options' id="{{data.label}}-options" multiple>
+                                    {% for option in data.options %}
+                                        <option value="{{option}}">{{option}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    {% endif %}
+                        
+                        
+                {% endfor %}
+
+                <button type='submit'>Submit</button>
+            </form>
+
+
+            {% comment %} <div style="display: flex; flex-direction: column; gap: 4px;">
+                <div style="display: flex">
+                    <div mbsc-page class="demo-multiple-select" style="background-color: white; width: 80%;">
+                        <label style="font-size: 20px;">
+                            Campaign Name
+                            <input mbsc-input id="demo-multiple-select-input" placeholder="Please select..." data-dropdown="true" data-input-style="outline" data-label-style="stacked" data-tags="true" />
+                        </label>
+                        <select id="hei-hello">
+                            <option value="1">Boook</option>
+                            <option value="2">Movies, Music & Games</option>
+                            <option value="3">Electronics & Computers</option>
+                            <option value="4">Home, Garden & Tools</option>
+                            <option value="5">Health & Beauty</option>
+                            <option value="6">Toys, Kids & Baby</option>
+                            <option value="7">Clothing & Jewelry</option>
+                            <option value="8">Sports & Outdoors</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div style="margin-left: 20px;">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="filter-1-toggle">
+                        <label class="form-check-label" for="filter-1-toggle">Toggle Filter 1</label>
+                    </div>
+                </div>
+
+                <div style="display: flex" id='filter-1-child'>
+                    <div mbsc-page class="demo-multiple-select-2" style="background-color: white; width: 80%;">
+                        <label style="font-size: 20px;">
+                            Filters #1
+                            <input mbsc-input id="demo-multiple-select-input-2" placeholder="Please select..." data-dropdown="true" data-input-style="outline" data-label-style="stacked" data-tags="true" />
+                        </label>
+                        <select id="demo-hello" multiple>
+                            <option value="1">A</option>
+                            <option value="2">B</option>
+                            <option value="3">C</option>
+                            <option value="4">D</option>
+                            <option value="5">E</option>
+                        </select>
+                    </div>
+                </div>
+                
+            </div> {% endcomment %}
+        </div>
+        <div class="w-50">
+            Column 2
+        </div>
+    </div>
+    <script>
+        mobiscroll.setOptions({
+            locale: mobiscroll.localeEn,                                         // Specify language like: locale: mobiscroll.localePl or omit setting to use default
+            theme: 'ios',                                                        // Specify theme like: theme: 'ios' or omit setting to use default
+            themeVariant: 'light'                                                // More info about themeVariant: https://mobiscroll.com/docs/javascript/select/api#opt-themeVariant
+        });
+    
+        mobiscroll.select('#hei-hello', {
+            inputElement: document.getElementById('demo-multiple-select-input')  // More info about inputElement: https://mobiscroll.com/docs/javascript/select/api#opt-inputElement
+        });
+        
+        {% for data in form_data %}
+            
+            {% if data.type == 'select' or data.type == 'multiselect' %}
+                mobiscroll.select('#{{data.label}}-options', {
+                    inputElement: document.getElementById('{{data.label}}-input')  // More info about inputElement: https://mobiscroll.com/docs/javascript/select/api#opt-inputElement
+                });
+            {% endif %}
+                
+        {% endfor %}
+    
+        mobiscroll.select('#demo-hello', {
+            inputElement: document.getElementById('demo-multiple-select-input-2')  // More info about inputElement: https://mobiscroll.com/docs/javascript/select/api#opt-inputElement
+        });
+
+        {% for data in form_data %}
+            
+            {% if data.type == 'radio' %}
+                function {{data.label}}_handle_change(event) {
+                    const checked = event.target.checked;
+                    if(checked) {
+                        document.getElementById('{{data.child}}-parent').style.display = 'block';
+                    }else{
+                        document.getElementById('{{data.child}}-parent').style.display = 'none';
+
+                    }
+                }
+
+                document.getElementById("{{data.label}}-input").addEventListener("change", {{data.label}}_handle_change);
+            {% endif %}
+                
+        {% endfor %}
+
+        
+
+
+
+    </script>
+</body>
+</html>
