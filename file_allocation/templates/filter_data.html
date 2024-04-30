@@ -1,0 +1,65 @@
+<!-- file_allocation/templates/file_allocation/filter_data.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Data Filter Form</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <h2>Data Filter Form</h2>
+    <form id="data-filter-form" method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <label for="id_campaign_name">Select Campaign Name:</label><br>
+        {{ form.campaign_name }}<br><br>
+
+        <!-- Multiple choice inputs (initially disabled) -->
+        <fieldset id="multiple-choice-inputs" disabled>
+            <legend>Multiple Choice Inputs</legend>
+            <label for="id_last_updated_group1_values">Select Required Group 1:</label><br>
+            {{ form.last_updated_group1_values }}<br><br>
+
+            <!-- Repeat similar sections for other multiple choice inputs -->
+        </fieldset>
+
+        <button type="submit">Generate Excel</button>
+    </form>
+
+    <script>
+        $(document).ready(function() {
+            $('select[name="campaign_name"]').change(function() {
+                fetchOptions();
+            });
+
+            function fetchOptions() {
+                var campaignName = $('select[name="campaign_name"]').val();
+
+                // Send AJAX request to fetch updated options for multiple choice fields
+                $.ajax({
+                    url: '{% url "filter_data" %}',
+                    data: {
+                        'campaign_name': campaignName
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        // Update options for multiple choice fields based on the response
+                        // Example code, adjust based on your form structure and requirements
+                        $('#id_last_updated_group1_values').empty();
+                        $.each(data, function(index, option) {
+                            $('#id_last_updated_group1_values').append($('<option>', {
+                                value: option.value,
+                                text: option.label
+                            }));
+                        });
+
+                        // Enable the fieldset after updating options
+                        $('#multiple-choice-inputs').prop('disabled', false);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
