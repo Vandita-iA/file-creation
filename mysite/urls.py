@@ -20,5 +20,6 @@ from file_allocation import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('home/', views.home_simple, name='home')
+    path('home/', views.home_simple, name='home'),
+    path('home-complex/', views.home_complex, name='home-complex')
 ]
