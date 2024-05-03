@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 import pandas as pd
 import psycopg2
-
+import basic2
 # Define your database connection parameters
 DB_NAME = 'dev_voice'
 DB_USER = 'postgres'
@@ -83,7 +83,18 @@ def home_simple(request):
             'default': campaign_name,
             'parent': 'Campaign_Name',
             'child': None},
-
+            {'label': 'maxout',
+             'options': [maxout_toggle],
+             'type' : 'radio',
+             'default': maxout_toggle,
+             'parent': 'maxout',
+             'child':'maxout_value'},
+            {'label':'maxout_value',
+             'options': [maxout_input],
+             'type': 'select',
+             'default': maxout_input,
+             'parent':'maxout',
+             'child': None},
             {'label' : 'last_updated_group1_value', 
             'options': df['last_updated_group1'].unique().tolist(), 
             'type': 'multiselect', 
@@ -184,12 +195,19 @@ def home_simple(request):
             'parent' : 'industry_filter',
             'child' : None},
 
-            # {'label' : 'priority_2', 
-            # 'options' : [], 
-            # 'type' : 'radio', 
-            # 'default' : None, 
-            # 'parent' : 'priority_2',
-            # 'child' : 'priority_2_value'},
+            {'label' : 'priority2', 
+            'options' : [], 
+            'type' : 'radio', 
+            'default' : None, 
+            'parent' : 'priority2',
+            'child' : 'priority2_value'},
+            {'label' : 'priority2_value', 
+            'options' : df['priority2'].unique().tolist(), 
+            'type' : 'multiselect', 
+            'default' : None, 
+            'parent' : 'priority2',
+            'child' : None},
+            
             {'label' : 'po', 
             'options' : [], 
             'type' : 'radio', 
@@ -221,20 +239,13 @@ def home_simple(request):
             'type' : 'radio', 
             'default' : None, 
             'parent' : 'tal_list',
-            'child' : 'la_list_value'},
+            'child' : 'tal_list_value'},
             {'label' : 'tal_list_value', 
             'options' : df['tal_list'].unique().tolist(), 
             'type' : 'multiselect', 
             'default' : None, 
             'parent' : 'tal_list',
             'child' : None},
-            
-            # {'label' : 'priority_2_value', 
-            # 'options' : df['priority_2'].unique().tolist(), 
-            # 'type' : 'multiselect', 
-            # 'default' : None, 
-            # 'parent' : 'priority_2',
-            # 'child' : None},
             
             {'label' : 'count_of_websites', 
             'options' : [], 
@@ -269,57 +280,72 @@ def home_simple(request):
 def home_complex(request):
     if request.method == 'POST':
         campaign_name = request.POST.get('Campaign_Name-input')
-        last_updated_group1_value = request.POST.get('last_updated_group1_value-input')
-        last_updated_group_value = request.POST.get('last_updated_group_value-input')
-        last_updated_disposition_value = request.POST.get('last_updated_disposition_value-input')
-        last_updated_churn_value = request.POST.get('last_updated_churn_value-input')
+        maxout = request.POST.get('maxout-input')
+        maxout_list = request.POST.get('maxout_value-input')
+        last_updated_group1_list = request.POST.get('last_updated_group1_value-input')
+        last_updated_date_list = request.POST.get('last_updated_date_value-input')
+        last_updated_group_list = request.POST.get('last_updated_group_value-input')
+        last_updated_disposition_list = request.POST.get('last_updated_disposition_value-input')
+        last_updated_churn_list = request.POST.get('last_updated_churn_value-input')
         job_title_filter = request.POST.get('job_title_filter-input')
+        job_title_list = request.POST.get('job_title_value-input')
         job_level_filter = request.POST.get('job_level_filter-input')
+        job_level_list = request.POST.get('job_level_value-input')
         job_function_filter = request.POST.get('job_function_filter-input')
+        job_function_list = request.POST.get('job_function_value-input')
         employee_size_filter = request.POST.get('employee_size_filter-input')
+        employee_size_list = request.POST.get('employee_size_value-input')
         industry_filter = request.POST.get('industry_filter-input')
+        industry_list = request.POST.get('industry_value-input')
         po = request.POST.get('po-input')
+        po_list = request.POST.get('po_value-input')
+        priority2 = request.POST.get('priority2-input')
+        priority2_list = request.POST.get('priority2_value-input')
         tag = request.POST.get('tag-input')
+        tag_list = request.POST.get('tag_value-input')
         tal_list = request.POST.get('tal_list-input')
-        job_title_value = request.POST.get('job_title_value-input')
-        job_level_value = request.POST.get('job_level_value-input')
-        job_function_value = request.POST.get('job_function_value-input')
-        employee_size_value = request.POST.get('employee_size_value-input')
-        industry_value = request.POST.get('industry_value-input')
-        po_value = request.POST.get('po_value-input')
-        tag_value = request.POST.get('tag_value-input')
-        tal_list_value = request.POST.get('tal_list_value-input')
+        tal_list_list = request.POST.get('tal_list_value-input')
         count_of_websites = request.POST.get('count_of_websites-input')
-        day_before_yesterday_websites = request.POST.get('day_before_yesterday_websites-input')
+        day_before_yesterday_websites_required = request.POST.get('day_before_yesterday_websites-input')
         count_of_companies = request.POST.get('count_of_companies-input')
-        day_before_yesterday_companies = request.POST.get('day_before_yesterday_companies-input')
+        day_before_yesterday_companies_required = request.POST.get('day_before_yesterday_companies-input')
 
         # print everything
-        print(campaign_name)
-        print(last_updated_group1_value)
-        print(last_updated_group_value)
-        print(last_updated_disposition_value)
-        print(last_updated_churn_value)
-        print(job_title_filter)
-        print(job_level_filter)
-        print(job_function_filter)
-        print(employee_size_filter)
-        print(industry_filter)
-        print(po)
-        print(tag)
-        print(tal_list)
-        print(job_title_value)
-        print(job_level_value)
-        print(job_function_value)
-        print(employee_size_value)
-        print(industry_value)
-        print(po_value)
-        print(tag_value)
-        print(tal_list_value)
-        print(count_of_websites)
-        print(day_before_yesterday_websites)
-        print(count_of_companies)
-        print(day_before_yesterday_companies)
+
+        master_df = fetch_campaign_data(campaign_name)
+
+        final_df = basic2.process(
+            master_df,
+            campaign_name,
+            maxout,
+            maxout_list,
+            last_updated_group1_list,
+            last_updated_group_list,
+            last_updated_disposition_list,
+            last_updated_churn_list,
+            job_title_filter,
+            job_title_list,
+            job_level_filter,
+            job_level_list,
+            job_function_filter,
+            job_function_list,
+            employee_size_filter,
+            employee_size_list,
+            industry_filter,
+            industry_list,
+            po,
+            po_list,
+            priority2,
+            priority2_list,
+            tag,
+            tag_list,
+            tal_list,
+            tal_list_list,
+            count_of_websites,
+            day_before_yesterday_websites_required,
+            count_of_companies,
+            day_before_yesterday_companies_required,
+        )
 
         return render(request, 'home-complex.html', {})
 
